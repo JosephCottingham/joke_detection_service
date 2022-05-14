@@ -159,13 +159,18 @@ def build_model():
     tfhub_handle_preprocess = map_model_to_preprocess[BERT_MODEL_NAME]
 
     text_input = tf.keras.layers.Input(shape=(), dtype=tf.string, name='text')
-    preprocessing_layer = hub.KerasLayer(tfhub_handle_preprocess, name='preprocessing')
+    preprocessing_layer = hub.KerasLayer(tfhub_handle_preprocess, trainable=False, name='preprocessing')
     encoder_inputs = preprocessing_layer(text_input)
-    encoder = hub.KerasLayer(tfhub_handle_encoder, trainable=True, name='BERT_encoder')
+    encoder = hub.KerasLayer(tfhub_handle_encoder, trainable=False, name='BERT_encoder')
     outputs = encoder(encoder_inputs)
     net = outputs['pooled_output']
+    net = tf.keras.layers.Dense(250, activation='relu')(net)
     net = tf.keras.layers.Dropout(0.1)(net)
-    net = tf.keras.layers.Dense(1, activation=None, name='classifier')(net)
+    net = tf.keras.layers.Dense(100, activation='relu')(net)
+    net = tf.keras.layers.Dropout(0.1)(net)
+    net = tf.keras.layers.Dense(50, activation='relu')(net)
+    net = tf.keras.layers.Dropout(0.1)(net)
+    net = tf.keras.layers.Dense(1, activation='linear', name='classifier')(net)
     
     
     model = tf.keras.Model(text_input, net)
