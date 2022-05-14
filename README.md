@@ -6,8 +6,9 @@ This project is a implimention of the following stack.
 - AWS S3: Model Deployment/Storage
 - AWS Lamdba/API Gateway: Hosting endpoint that utlizes model to generate responses
 
+## Setup
 
-
+If the below functions are to work you need to provide your amazong api access to the srcipts via modifying the `.env.example` files in both `src` and `src/model_server`. These files must be copyed to .env in the same directory and the values need to be replaced with your own AWS keys.
 
 
 ## Deploy New Model Generated via Pipeline
@@ -36,8 +37,11 @@ export AWS_PROFILE=<AWS-ENV>
 ```
 # Login to the AWS container register
 aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin 745490699111.dkr.ecr.us-west-1.amazonaws.com
-# Build the lamdba docker image
-docker build . -t 745490699111.dkr.ecr.us-west-1.amazonaws.com/joke_detection_predict:latest 
-# Push the docker image to ECR
-docker push 745490699111.dkr.ecr.us-west-1.amazonaws.com/joke_detection_predict:latest
-``` 
+# Run Deploy script that will generate the docker image and push to ECR where it can be used to launch a lamdba function
+cd src/model_server
+./deploy
+```
+
+
+This model is currently deployed at the following URL with the joke being passed as a `query prameter` in a `GET` request. The prameter key is `joke`.
+[https://ya7kfyqg06.execute-api.us-west-1.amazonaws.com/joke_predict?joke=%22What%20do%20kids%20play%20when%20their%20mom%20is%20using%20the%20phone?%20Bored%20games.%22](https://ya7kfyqg06.execute-api.us-west-1.amazonaws.com/joke_predict?joke=%22What%20do%20kids%20play%20when%20their%20mom%20is%20using%20the%20phone?%20Bored%20games.%22)
